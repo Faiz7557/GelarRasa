@@ -25,7 +25,7 @@ Dashboard pencegahan kebakaran gambut berulang (Gelar Rasa 2026, Bab IV).
 cd app && npm install && cp .env.example .env.local && npm run dev
 ```
 
-Buka http://localhost:3000, klik **Masuk sebagai demo** (koordinator). Persona lain: `agus@tabat.demo` (regu), `hadi@tabat.demo` (pengelola), `dewi@tabat.demo` (kampus), kata sandi `DEMO_PASSWORD` (default `tabat2026`). Isi `SESSION_SECRET` dengan string acak ≥ 32 karakter. `ANTHROPIC_API_KEY` opsional: tanpa kunci, sortir alasan memakai kata kunci dan ringkasan pimpinan memakai templat.
+Buka http://localhost:3000, klik **Masuk sebagai demo** (koordinator). Isi `SESSION_SECRET` dengan string acak ≥ 32 karakter. `ANTHROPIC_API_KEY` opsional: tanpa kunci, sortir alasan memakai kata kunci dan ringkasan pimpinan memakai templat.
 
 ## Pemeriksaan
 
