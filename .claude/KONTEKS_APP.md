@@ -1,0 +1,27 @@
+# Konteks app TABAT untuk eksekutor (diperbarui orkestrator setelah G3)
+
+Root app: `/c/Uner/Lomba/Gelar Rasa/2026/tabat-app/app`. Next 16.4.5 App Router (params/searchParams = Promise), React 19.3, Tailwind v4 lewat @tailwindcss/turbopack. Token di `app/globals.css`: warna `ground, panel, panel-2, line, line-2, ink, ink-2, ink-3, tipe-1/2/3, hotspot, gambut, luar, laut, el-nino, telat(+-soft,+-ink), segera(+-soft,+-ink), siap(+-soft,+-ink), air-aman, air-kering, demo(+-soft,+-ink)`; `font-display` (Poppins), `font-sans` (Inter); radius `rounded-card` 16, `rounded-control` 10. Paket: lucide-react, motion, recharts, maplibre-gl, @anthropic-ai/sdk.
+
+## Sudah ada (baca dulu, PAKAI; jangan ubah kecuali ada di daftar berkas task)
+- `lib/data.ts` (server-only): getRingkasan({elNino,kab}), getBlokList({kelas,kab,limit,minObs}), getBlok(id), getBlokAtribut(), getFacts(), getReplay() → {skenario, kurva, blok}, getCoverageCurve(), getMeta().
+- `lib/db.ts` (server-only): db(), all<T>(sql,...p), one<T>(sql,...p), meta(). `lib/ops.ts`: ops() (DB ops dengan `ana` = tabat.db ter-ATTACH), resetOps(), newTugasId(), newKunjunganId().
+- `lib/tugas.ts` (server-only): listTugas(filter), catat() aktivitas, cekTransisi, hasPhotoVisit, STATUS, JENIS.
+- `lib/rules.ts` (murni): kelasOf, compareBlocks, deadlineFor, isReady, readiness, waterStatus, capacityPlan(blocks,n,{elNino,coverageCurve}) → {blocks,pctLuasBerulang}, urgency, daysBetween, canTransition, AMBANG_AIR_CM, LEAD_AKSES.
+- `lib/format.ts` (aman klien): fmtNum, fmtPct ("46,2%"), fmtTanggal ("1 Agu 2027"), fmtHa, hariMenuju.
+- `lib/copy.ts`: semua label (LABEL_KELAS, LABEL_STATUS_TUGAS, ALASAN/LABEL_ALASAN, LABEL_AKSES, PESAN_KOSONG, PESAN_GALAT, LEGENDA_KALIMAT, KATA_TERLARANG, PITA_DEMO, …). `lib/people.ts`: PEOPLE (koordinator Rina, regu Agus, pengelola Hadi, kampus Dewi; wa, inisial). `lib/auth.ts`: getSession() → Persona|null; requireRole(roles) → {persona}|{error}. `lib/api.ts`: ok(data), fail(msg,status). `lib/cn.ts`: cn(). `lib/wa.ts`.
+- `components/ui/*`: Card, CardTitle, Badge (varian telat|segera|siap|demo|netral, selalu berteks), Button (primer|aksen|sekunder|ghost; ukuran md|lg), Dialog ({open,onClose,judul}; <dialog> native), Skeleton, EmptyState ({pesan,aksi?}), ErrorCard ({pesan?,onRetry?}), DemoBadge, DemoRibbon, CountdownBadge, StepperTABAT ({aktif:0..4}).
+- `components/map/*`: BlockMap (default; props {filter?:{kelas?,kab?,ids?}, highlightId?, focus?:[lon,lat], onBlockClick?, mode?:'blok'|'kabupaten', kabStats?, onKabClick?, className?, height?, attrs?}), KabupatenMap, Legend, style.ts (buildStyle, warna hex token), useBlockAttrs, MapFallbackList.
+- Layar: `/` (components/hero), `/peta` (components/peta: PetaView, Filters, BlockList, BlockPopover), `/blok/[id]` (components/blok), `/tugas` (components/tugas: TaskBoard, TaskCard, ApproveDialog, ProofDialog, RejectPlaceholder, TaskFilters, server.ts, types.ts).
+- API (respons {data, meta} atau {error}): GET /api/ringkasan, /api/blok, /api/blok/[id], /api/blok-atribut, GET/POST /api/tugas (POST {block_id,jenis?} atau {block_ids:[≤50],jenis} → {dibuat,dilewati,tugas}), PATCH /api/tugas/[id] ({aksi:'setujui',pemilik,tenggat} | {aksi:'tolak',alasan,catatan?,alasan_sumber?:'pilih'|'ai'|'kata_kunci'} | {aksi:'status',ke} | {aksi:'buka'}), POST /api/kunjungan (idempoten client_id; 201/200 duplikat), POST /api/demo/reset (koordinator), /api/auth/masuk|keluar|ganti.
+- DB analitik: `app/data/tabat.db` (JANGAN diubah). Tabel: meta, blocks, block_years, kabupaten, replay, replay_block, replay_curve, coverage_curve, facts, annual, season_monthly, external_facts, seed_*.
+
+## Aturan kerja
+- Server Components memanggil lib/data.ts langsung; komponen klien boleh fetch API (cookie otomatis).
+- Angka dari seed/ops (tugas, kunjungan, akses, kesiapan, alasan tolak) WAJIB disertai `<DemoBadge/>` di dekatnya. Angka riset dibaca dari DB, tidak di-hardcode. Format id-ID.
+- Kata terlarang di teks UI: prediksi, ramalan, peluang terbakar, risiko terbakar tahun ini, AI memutuskan, dijamin, pasti (kecuali LEGENDA_KALIMAT bernegasi).
+- Agen lain bekerja paralel: JANGAN ubah berkas di luar daftar task. Butuh fungsi baru? Buat di berkas milikmu atau laporkan.
+- DEV SERVER: jangan `next dev` biasa dan JANGAN `npm run build` (menghapus .next milik server lain). Pakai: `cd app && NEXT_DIST_DIR=.next/par/<id-task> npx next dev -p <port>` (Bash run_in_background). Login: buka /masuk → "Masuk sebagai demo" atau `fetch('/api/auth/masuk',{method:'POST',headers:{'content-type':'application/json'},body:'{"demo":true}'})`. Uji visual dengan Browser pane (mcp__Claude_Browser__*: buka TAB SENDIRI dengan tabs_create lalu navigate; panel dipakai bersama agen lain; resize_window 1440×900 atau 375×812 lalu kembalikan preset desktop; get_page_text/read_page untuk teks; read_console_messages). Panel mungkin hanya merender frame peta saat screenshot. DB ops dipakai bersama semua server: setelah menguji aksi yang mengubah state, panggil POST /api/demo/reset. Matikan dev server MILIKMU di akhir. Jangan pakai /tmp untuk berkas kerja.
+- `next dev` menambah entri `.next/par/...` ke include tsconfig.json otomatis: biarkan, orkestrator membersihkan.
+- Hook "GateGuard" bisa meminta fakta sebelum Bash/Write/Edit pertama per berkas: sebutkan singkat lalu ulangi.
+- Verifikasi wajib: `cd app && npx tsc --noEmit && npx eslint <berkas-berkasmu>` + uji visual + konsol tanpa galat.
+- Laporan: format docs/06 §5.

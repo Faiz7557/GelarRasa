@@ -1,0 +1,8 @@
+node_modules
+.next
+.env*
+!.env.example
+__pycache__
+pipeline/data_ext/
+app/test-results/
+app/playwright-report/
