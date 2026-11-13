@@ -31,10 +31,10 @@ export function verifySession(token: string | undefined | null): PersonaId | nul
   return a.length === b.length && timingSafeEqual(a, b) ? id : null;
 }
 
-/** Sesi dari cookie (Server Component / route handler). null bila belum masuk. */
+/** Sesi dari cookie; tanpa cookie otomatis koordinator (demo tanpa login). */
 export async function getSession(): Promise<Persona | null> {
   const id = verifySession((await cookies()).get(SESSION_COOKIE)?.value);
-  return id ? PEOPLE[id] : null;
+  return PEOPLE[id ?? "koordinator"];
 }
 
 /** Untuk route handler: `const r = await requireRole([...]); if ("error" in r) return r.error;` */

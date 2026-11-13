@@ -21,9 +21,8 @@ test.afterEach(() => {
   expect(errs).toEqual([]);
 });
 
-test("1. masuk demo dan reset", async ({ page }) => {
+test("1. demo langsung terbuka tanpa login dan reset", async ({ page }) => {
   await page.goto("/masuk");
-  await page.getByRole("button", { name: "Masuk sebagai demo" }).click();
   await expect(page).toHaveURL(/\/(\?.*)?$/);
   const r = await page.request.post("/api/demo/reset");
   expect(r.status()).toBe(200);

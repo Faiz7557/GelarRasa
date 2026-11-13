@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronDown, LogOut, RotateCcw } from "lucide-react";
+import { Check, ChevronDown, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { AKSI, SHELL } from "@/lib/copy";
 import { PERSONA_LIST, type Persona, type PersonaId } from "@/lib/people";
@@ -37,17 +37,6 @@ export function Header({ persona }: { persona: Persona }) {
       router.refresh();
     } catch {
       setPesan({ ok: false, teks: SHELL.gantiGagal });
-    }
-  }
-
-  async function keluar() {
-    try {
-      const r = await post("/api/auth/keluar");
-      if (!r.ok) throw new Error();
-      router.replace("/masuk");
-      router.refresh();
-    } catch {
-      setPesan({ ok: false, teks: SHELL.keluarGagal });
     }
   }
 
@@ -112,10 +101,6 @@ export function Header({ persona }: { persona: Persona }) {
               <span className="hidden sm:inline">{sibuk ? SHELL.resetMemuat : AKSI.resetDemo}</span>
             </Button>
           )}
-          <Button varian="ghost" className="text-ground hover:bg-ground/10" onClick={keluar} aria-label={AKSI.keluar}>
-            <LogOut size={16} strokeWidth={1.75} aria-hidden />
-            <span className="hidden sm:inline">{AKSI.keluar}</span>
-          </Button>
         </div>
       </div>
       {pesan && (
